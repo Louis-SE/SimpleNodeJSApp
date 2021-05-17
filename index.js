@@ -30,9 +30,14 @@ function setServerHostname(userArgs) {
 // Retrieves a usable port from the command line args.
 // If a proper port was not entered in the command line, the default port is used.
 function setServerPort(userArgs) {
-    if(userArgs.length >= 2 && typeof userArgs(2) == Number) {
-        console.log("Possible Port Detected.");
+    var currentPort = defaultPort;
+
+    if(userArgs.length >= 2 && !isNaN(userArgs[1])) {
+        var potentialPort = parseInt(userArgs[1]);
+        // The potential port is only used if its inside the acceptable range of port values.
+        if(potentialPort >= 0 && potentialPort <= 65535) {
+            currentPort = potentialPort;
+        }
     }
-    
-    return defaultPort;
+    return currentPort;
 }
