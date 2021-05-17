@@ -20,21 +20,27 @@ console.log(`Server running at http://${hostname}:${port}/`);
 // Retrieves a usable hostname from the command line args.
 // If a proper hostname was not entered in the command line, the default hostname is used.
 function setServerHostname(userArgs) {
-    var useDefaultHostname = false;
+    var useDefaultHostname = true;
+
     if(userArgs.length >= 1) {
         var potentialHostname = userArgs[0].split('.');
         
         if(potentialHostname.length == 4) {
+            var issueWithHostnameFound = false;
             for(var i = 0; i < potentialHostname.length; i++) {
                 if(!isNaN(potentialHostname[i])) {
                     var ipBlock = parseInt(potentialHostname[i]);
                     if(ipBlock < 0 || ipBlock > 255) {
-                        useDefaultHostname = true;
+                        issueWithHostnameFound = true;
                     }
                 }
                 else {
-                    useDefaultHostname = true;
+                    issueWithHostnameFound = true;
                 }
+            }
+
+            if(!issueWithHostnameFound) {
+                useDefaultHostname = false;
             }
         }
     }
