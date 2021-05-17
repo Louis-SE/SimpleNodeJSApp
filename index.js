@@ -11,7 +11,24 @@ var port = setServerPort(myArgs);
 
 
 http.createServer(function(request, response) {
-    response.writeHead(200, {'Content-Type': 'text/plain'});
+    //response.writeHead(200, {'Content-Type': 'text/plain'});
+
+    if(request.method == 'PUT') {
+        var body = ''; 
+
+        request.on('data', function(chunk) {
+            body += chunk;
+        });
+
+        request.on('end', function() {
+            var startTime = JSON.parse(body);
+            var rp = {
+                "text": "Post Request Value is  " + startTime.value
+            };
+            response.setHeader('Content-Type', 'application/json');
+            response.end(JSON.stringify(rp));
+        });
+    }
 }).listen(port, hostname);
 
 console.log(`Server running at http://${hostname}:${port}/`);
