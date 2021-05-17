@@ -1,5 +1,4 @@
 const { Console } = require("console");
-const console = require("console");
 const http = require("http");
 
 var myArgs = process.argv.slice(2);
@@ -11,22 +10,27 @@ var port = setServerPort(myArgs);
 
 
 http.createServer(function(request, response) {
-    //response.writeHead(200, {'Content-Type': 'text/plain'});
 
+    // The only request method being handled is PUT
     if(request.method == 'PUT') {
-        var body = ''; 
+        var putJSON = ''; 
 
         request.on('data', function(chunk) {
-            body += chunk;
+            putJSON += chunk;
         });
 
         request.on('end', function() {
-            var startTime = JSON.parse(body);
-            var rp = {
-                "text": "Post Request Value is  " + startTime.value
-            };
+            var jsonReversed = JSON.parse(putJSON, (key, value) => {
+                if(typeof value === 'string') {
+                    // Split the string into an array of seperate characters,
+                    return value.split("").reverse().join("");
+                }
+                else {
+                    return value;
+                }
+            });
             response.setHeader('Content-Type', 'application/json');
-            response.end(JSON.stringify(rp));
+            response.end(JSON.stringify(jsonReversed));
         });
     }
 }).listen(port, hostname);
