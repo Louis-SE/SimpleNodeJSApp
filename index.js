@@ -2,15 +2,16 @@ const { Console } = require("console");
 const http = require("http");
 const hostconfig = require("./hostconfig");
 
+// This discards the first two arguments, which are always going to be "node" and "index.js".
 var myArgs = process.argv.slice(2);
 
 var hostname = hostconfig.setServerHostname(myArgs);
 var port = hostconfig.setServerPort(myArgs);
 
+var sendServerStartMessage = true;
 
 var server = http.createServer(function(request, response) {
-    
-    console.log(server.address());
+
     // The only request method being handled is PUT
     if(request.method == 'PUT') {
         var putJSON = ''; 
@@ -22,7 +23,8 @@ var server = http.createServer(function(request, response) {
         request.on('end', function() {
             try {
                 var jsonReversed = JSON.parse(putJSON, (key, value) => {
-                    // Values of type string will be reversed, but all other values need to be returned as well or they will be omitted from jsonReversed.
+                    // Values of type string will be reversed and returned. 
+                    // All other values need to be returned as well or they will be omitted from jsonReversed.
                     if(typeof value === 'string') {
                         // This is what's causing string values to become reversed.
                         return value.split("").reverse().join("");
@@ -43,10 +45,12 @@ var server = http.createServer(function(request, response) {
 }).listen(port, hostname);
 
 server.on('error', function(e) {
-    console.log("The nodejs server could not be created\n");
+    sendServerStartMessage = false;
+    console.log("The http server could not be created\n");
     console.log(e);
     server.close();
 });
 
-console.log(`Server running at http://${hostname}:${port}/\n`);
-
+if(sendServerStartMessage) {
+    console.log(`Server running at http://${hostname}:${port}/\n`);
+}

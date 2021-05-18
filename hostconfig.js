@@ -4,16 +4,17 @@ const defaultPort = 8081;
 // Retrieves a usable hostname from the command line args.
 // If a proper hostname was not entered in the command line, the default hostname is used.
 exports.setServerHostname = function(userArgs) {
-    var useDefaultHostname = true;
-
+    var issueWithHostnameFound = false;
     if(userArgs.length >= 1) {
         // Potential host name would need to have 4 elements after the call to split for it to be a valid IP address.
         var potentialHostname = userArgs[0].split('.');
         
         if(potentialHostname.length == 4) {
-            var issueWithHostnameFound = false;
             for(var i = 0; i < potentialHostname.length; i++) {
-                if(!isNaN(potentialHostname[i])) {
+                // isNaN considers empty strings to be numbers, which made hostnames such as "127..."
+                // register as valid. The second clause was added to this if to check that the number entered
+                // by the user has characters in it.
+                if(!isNaN(potentialHostname[i]) && !(potentialHostname[i].length === 0)) {
                     var ipBlock = parseInt(potentialHostname[i]);
                     if(ipBlock < 0 || ipBlock > 255) {
                         issueWithHostnameFound = true;
@@ -23,14 +24,15 @@ exports.setServerHostname = function(userArgs) {
                     issueWithHostnameFound = true;
                 }
             }
-
-            if(!issueWithHostnameFound) {
-                useDefaultHostname = false;
-            }
+        }
+        else {
+            issueWithHostnameFound = true;
         }
     }
-
-    return (useDefaultHostname ? defaultHostname : userArgs[0]);
+    if(issueWithHostnameFound) {
+        console.log(`Problem found with supplied hostname.\nUsing the default hostname of ${defaultHostname}\n`);
+    }
+    return (userArgs.length >= 1 && !issueWithHostnameFound ? userArgs[0] : defaultHostname);
 }
 
 // Retrieves a usable port from the command line args.
@@ -44,6 +46,12 @@ exports.setServerPort = function(userArgs) {
         if(potentialPort >= 0 && potentialPort <= 65535) {
             currentPort = potentialPort;
         }
+        else {
+            console.log(`Problem found with supplied port.\nUsing the default port of ${defaultPort}\n`);
+        }
+    }
+    else if(userArgs.length >= 2 && isNaN(userArgs[1])) {
+        console.log(`Problem found with supplied port.\nUsing the default port of ${defaultPort}\n`);
     }
     return currentPort;
 }
