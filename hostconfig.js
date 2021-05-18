@@ -7,6 +7,7 @@ exports.setServerHostname = function(userArgs) {
     var useDefaultHostname = true;
 
     if(userArgs.length >= 1) {
+        // Potential host name would need to have 4 elements after the call to split for it to be a valid IP address.
         var potentialHostname = userArgs[0].split('.');
         
         if(potentialHostname.length == 4) {
